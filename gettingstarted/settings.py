@@ -136,3 +136,8 @@ STATICFILES_DIRS = (
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
+###############################################
+
+NATIONBUILDER_SLUG = os.environ.get('NATIONBUILDER_SLUG')
+NATIONBUILDER_ACCESS_TOKEN = os.environ.get('NATIONBUILDER_ACCESS_TOKEN')
+
