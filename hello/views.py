@@ -4,9 +4,6 @@ from rauth import OAuth2Service
 import json
 import sys
 
-class Cache:
-    tokens = {}
-
 # Create your views here.
 def index(request):
     return render(request, 'index.html')
@@ -29,7 +26,7 @@ def oauth_callback(request):
                                            "redirect_uri": redirect_uri,
                                            "grant_type": "authorization_code"})
 
-    Cache.tokens[request.session.session_key] = token
+    request.session['token'] = token
     return tags(request)
 
 def tags(request):
@@ -37,7 +34,7 @@ def tags(request):
 
     nation_slug = request.session['nation_slug']
     service = get_oauth_service(nation_slug)
-    token = Cache.tokens[request.session.session_key]
+    token = request.session['token']
     session = service.get_session(token)
 
     response = session.get("https://"+nation_slug+".nationbuilder.com/api/v1/tags?limit=1000",

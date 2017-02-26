@@ -138,8 +138,9 @@ STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 ###############################################
 
-SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-SESSION_COOKIE_HTTPONLY = True
+# SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+# SESSION_COOKIE_HTTPONLY = True
+SESSION_ENGINE= 'django.contrib.sessions.backends.cached_db'
 
 NATIONBUILDER_APP_CLIENT_ID = os.environ.get('NATIONBUILDER_APP_CLIENT_ID')
 NATIONBUILDER_APP_CLIENT_SECRET = os.environ.get('NATIONBUILDER_APP_CLIENT_SECRET')
