@@ -57,7 +57,6 @@ def tags(request):
             ".nationbuilder.com/api/v1/tags/" +\
             filtered_tags[filtered_tag_index] +\
             "/people"
-        print("REQUESTING PEOPLE FROM URL: " + url)
         sys.stdout.flush()
         people_response = session.get(url,
                                       params={'format': 'json'},
