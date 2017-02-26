@@ -4,7 +4,9 @@ from django.conf import settings
 from rauth import OAuth2Service
 import json
 
-# os.environ['DJANGO_SETTINGS_MODULE'] = 'gettingstarted.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'gettingstarted.settings'
+
+
 # nation_slug = settings.NATIONBUILDER_SLUG
 # access_token = settings.NATIONBUILDER_ACCESS_TOKEN
 # url = "https://" + nation_slug + ".nationbuilder.com/api/v1/tags" + \
@@ -32,6 +34,8 @@ service = OAuth2Service(
 #                                        "redirect_uri": redirect_uri,
 #                                        "grant_type": "authorization_code"})
 
+token = os.environ.get('NATIONBUILDER_DEV_TOKEN')
+
 print("TOKEN: " + token)
 
 #
@@ -43,8 +47,15 @@ session = service.get_session(token)
 #
 # Get API data using session
 #
-response = session.get("https://"+nation_slug+".nationbuilder.com/api/v1/tags",
+# response = session.get("https://"+nation_slug+".nationbuilder.com/api/v1/tags",
+#                        params={'format': 'json'},
+#                        headers={'content-type': 'application/json'})
+# print("RESPONSE CLASS: " + str(response.__class__))
+# print("RESPONSE:" + str(response))
+
+# response = session.get("https://cprice404.nationbuilder.com/api/v1/tags/IMS DB/DC/people",
+# response = session.get("https://cprice404.nationbuilder.com/api/v1/tags/IMS%20DB%2FDC/people",
+response = session.get("https://cprice404.nationbuilder.com/api/v1/tags/Erwin/people",
                        params={'format': 'json'},
                        headers={'content-type': 'application/json'})
-print("RESPONSE CLASS: " + str(response.__class__))
 print("RESPONSE:" + str(response))
