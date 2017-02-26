@@ -1,8 +1,9 @@
 <html>
 <h1>Hi!</h1>
-<ul>
-{% for tag in tags %}
-<li>{{ tag }}</li>
-{% endfor %}
-</ul>
+Log in to nation:
+<form method="post" action="nation_login">
+    {% csrf_token %}
+    <input type="text" name="nation_slug"/>
+    <input type="submit" />
+</form>
 </html>
