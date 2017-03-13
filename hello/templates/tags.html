@@ -26,18 +26,12 @@
             </div>
             {% endif %}
             {% if matching_people %}
-            <!--
-            It can be a limited set of profile info, for now we only need primary email, phone, first and last name, primary address.
-David Kreisman - TechMon 1:41pm
-
-In addition to that profile info, we would like to see any tags they have that start with "Team - ". Is that doable without showing all of the tags on their profile?
-
- value|join:" // "
-            -->
             <div>
-                People matching tag '{{ selected_tag }}':
+                People matching tag '{{ selected_tag.raw }}':
                 <table border="1">
                     <tr>
+                        <th></th>
+                        <th>ID</th>
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Team Tags</th>
@@ -45,8 +39,38 @@ In addition to that profile info, we would like to see any tags they have that s
                         <th>Phone</th>
                         <th>Address</th>
                     </tr>
-                    {% for person in matching_people %}
+                {% for person in matching_people %}
+                    {% if person.id == edit_person_id %}
                     <tr>
+                        <td>
+                            <input type="hidden" name="selected_tag" value="{{ selected_tag.raw }}" />
+                            <input type="hidden" name="edit_person_id" value="{{ edit_person_id }}" />
+                            <input type="submit" value="Save" />
+                        </td>
+                        <td>{{ person.id }}</td>
+                        <td><input type="text" name="person_first_name" value="{{ person.first_name }}" /></td>
+                        <td><input type="text" name="person_last_name" value="{{ person.last_name }}" /></td>
+                        <td>{{ person.team_tags|join:", " }}</td>
+                        <td><input type="text" name="person_email" value="{{ person.email }}" /></td>
+                        <td><input type="text" name="person_phone" value="{{ person.phone }}" /></td>
+                        <td>
+                            <div>
+                                {{ person.address.address1 }}
+                            </div>
+                            <div>
+                                {{ person.address.address2|default_if_none:'' }}
+                            </div>
+                            <div>
+                                {{ person.address.city }},
+                                {{ person.address.state }}
+                                {{ person.address.zip }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td><a href="tags?tag_prefix={{ tag_prefix }}&selected_tag={{ selected_tag.encoded }}&edit_person_id={{ person.id }}">Edit</a></td>
+                        <td>{{ person.id }}</td>
                         <td>{{ person.first_name }}</td>
                         <td>{{ person.last_name }}</td>
                         <td>{{ person.team_tags|join:", " }}</td>
@@ -66,7 +90,8 @@ In addition to that profile info, we would like to see any tags they have that s
                             </div>
                         </td>
                     </tr>
-                    {% endfor %}
+                    {% endif %}
+                {% endfor %}
                 </table>
             </div>
             {% endif %}
