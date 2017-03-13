@@ -1,0 +1,10 @@
+<html>
+<h1>Formset</h1>
+<form method="post" action="">
+    {% csrf_token %}
+    <table>
+        {{ formset }}
+    </table>
+    <input type="submit" value="GO" />
+</form>
+</html>

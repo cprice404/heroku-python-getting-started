@@ -16,17 +16,20 @@
             <input type="text" name="tag_prefix" value="{{ tag_prefix }}" />
             <input type="submit" />
             {% if filtered_tags %}
-            <ul>
-                {% for tag in filtered_tags %}
-                <li>{{ tag }}</li>
-                {% endfor %}
-            </ul>
-            First 10 people matching these tags:
-            <ul>
-                {% for person in matching_people %}
-                <li>{{ person }}</li>
-                {% endfor %}
-            </ul>
+            <div>
+                Click on a tag to show matching person records.
+                <ul>
+                    {% for tag in filtered_tags %}
+                    <li>{{ tag }}</li>
+                    {% endfor %}
+                </ul>
+                <!--First 10 people matching these tags:-->
+                <!--<ul>-->
+                <!--{% for person in matching_people %}-->
+                <!--<li>{{ person }}</li>-->
+                <!--{% endfor %}-->
+                <!--</ul>-->
+            </div>
             {% endif %}
         </td>
     </tr>
