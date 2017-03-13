@@ -37,13 +37,23 @@ def handle_tags_request(request):
         url = "https://" + nation_slug + \
               ".nationbuilder.com/api/v1/tags/" + \
               selected_tag + \
-              "/people"
+              "/people?limit=1000"
         people_response = session.get(url,
                                       params={'format': 'json'},
                                       headers={'content-type': 'application/json'})
         people = people_response.json()['results']
         for person in people:
-            matching_people.append(person['first_name'] + " " + person['last_name'])
+            print "PERSON KEYS: '%s'" % person.keys()
+            print "PERSON TAGS: '%s'" % person['tags']
+            team_tags = filter(lambda t: t.lower().startswith("team"),
+                               person['tags'])
+            person_map = {'first_name': person['first_name'],
+                          'last_name': person['last_name'],
+                          'team_tags': team_tags,
+                          'email': person['email'],
+                          'phone': person['phone'],
+                          'address': person['primary_address']}
+            matching_people.append(person_map)
 
     return render(request, 'tags.html', context={'tags': tags,
                                                  'tag_prefix': tag_prefix or '',

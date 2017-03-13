@@ -26,13 +26,48 @@
             </div>
             {% endif %}
             {% if matching_people %}
+            <!--
+            It can be a limited set of profile info, for now we only need primary email, phone, first and last name, primary address.
+David Kreisman - TechMon 1:41pm
+
+In addition to that profile info, we would like to see any tags they have that start with "Team - ". Is that doable without showing all of the tags on their profile?
+
+ value|join:" // "
+            -->
             <div>
                 People matching tag '{{ selected_tag }}':
-                <ul>
-                {% for person in matching_people %}
-                <li>{{ person }}</li>
-                {% endfor %}
-                </ul>
+                <table border="1">
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Team Tags</th>
+                        <th>E-mail</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                    </tr>
+                    {% for person in matching_people %}
+                    <tr>
+                        <td>{{ person.first_name }}</td>
+                        <td>{{ person.last_name }}</td>
+                        <td>{{ person.team_tags|join:", " }}</td>
+                        <td>{{ person.email }}</td>
+                        <td>{{ person.phone }}</td>
+                        <td>
+                            <div>
+                                {{ person.address.address1 }}
+                            </div>
+                            <div>
+                                {{ person.address.address2|default_if_none:'' }}
+                            </div>
+                            <div>
+                                {{ person.address.city }},
+                                {{ person.address.state }}
+                                {{ person.address.zip }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
             </div>
             {% endif %}
         </td>
