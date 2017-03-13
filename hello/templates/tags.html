@@ -1,6 +1,6 @@
 <html>
 <h1>Tags</h1>
-<form method="POST" action="/tags">
+<form method="POST" action="tags">
 {% csrf_token %}
 <table border="1">
     <tr>
@@ -20,15 +20,19 @@
                 Click on a tag to show matching person records.
                 <ul>
                     {% for tag in filtered_tags %}
-                    <li>{{ tag }}</li>
+                    <li><a href="tags?tag_prefix={{ tag_prefix }}&selected_tag={{ tag.encoded }}">{{ tag.raw }}</a></li>
                     {% endfor %}
                 </ul>
-                <!--First 10 people matching these tags:-->
-                <!--<ul>-->
-                <!--{% for person in matching_people %}-->
-                <!--<li>{{ person }}</li>-->
-                <!--{% endfor %}-->
-                <!--</ul>-->
+            </div>
+            {% endif %}
+            {% if matching_people %}
+            <div>
+                People matching tag '{{ selected_tag }}':
+                <ul>
+                {% for person in matching_people %}
+                <li>{{ person }}</li>
+                {% endfor %}
+                </ul>
             </div>
             {% endif %}
         </td>
