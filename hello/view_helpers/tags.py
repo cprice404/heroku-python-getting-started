@@ -26,10 +26,7 @@ def handle_tags_request(request):
         selected_tag = request.GET.get('selected_tag')
         edit_person_id = request.GET.get('edit_person_id')
 
-    response = session.get("https://"+nation_slug+".nationbuilder.com/api/v1/tags?limit=1000",
-                           params={'format': 'json'},
-                           headers={'content-type': 'application/json'})
-    tags = map(lambda x: x['name'], response.json()['results'])
+    tags = get_tags(session, nation_slug)
 
     filtered_tags = []
     if tag_prefix:
@@ -68,6 +65,41 @@ def handle_tags_request(request):
                                                  'selected_tag': selected_tag_map,
                                                  'edit_person_id': edit_person_id,
                                                  'matching_people': matching_people})
+
+def handle_replace_tag_request(request):
+    nation_slug = request.session['nation_slug']
+    service = get_oauth_service(nation_slug)
+    token = request.session['token']
+    session = service.get_session(token)
+
+    old_tag = None
+    new_tag = None
+    people = []
+    if request.method == 'POST':
+        old_tag = request.POST.get('old_tag')
+        new_tag = request.POST.get('new_tag')
+
+        url = make_api_url(nation_slug, "/tags/" + old_tag + "/people?limit=1000")
+        people_response = session.get(url,
+                                      params={'format': 'json'},
+                                      headers={'content-type': 'application/json'})
+        people = people_response.json()['results']
+
+    tags = get_tags(session, nation_slug)
+    return render(request, 'replace_tag.html',
+                  context={
+                      'tags': tags,
+                      'old_tag': old_tag,
+                      'new_tag': new_tag,
+                      'people': people,
+                  })
+
+
+def get_tags(session, nation_slug):
+    response = session.get("https://"+nation_slug+".nationbuilder.com/api/v1/tags?limit=1000",
+                           params={'format': 'json'},
+                           headers={'content-type': 'application/json'})
+    return map(lambda x: x['name'], response.json()['results'])
 
 
 def save_person(session, nation_slug, person_id, request):

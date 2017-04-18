@@ -1,0 +1,29 @@
+<html>
+<h1>Replace Tag</h1>
+<form method="POST" action="replace_tag">
+    {% csrf_token %}
+    <div>
+        Find people with this tag:
+        <select name="old_tag">
+            {% for tag in tags %}
+            <option {% if tag == old_tag %} selected="selected" {% endif %}>{{ tag }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        Replace it with this tag:
+        <select name="new_tag">
+            {% for tag in tags %}
+            <option {% if tag == new_tag %} selected="selected" {% endif %}>{{ tag }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <input type="submit" value="Find People" />
+    <table>
+        <tr><th>Name</th></tr>
+        {% for person in people %}
+            <tr><td>{{ person.first_name }} {{ person.last_name }}</td></tr>
+        {% endfor %}
+    </table>
+</form>
+</html>

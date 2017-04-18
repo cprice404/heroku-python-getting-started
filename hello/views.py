@@ -4,7 +4,7 @@ import json
 
 from hello.utils.oauth import get_oauth_service, get_redirect_url
 from hello.view_helpers.formset import handle_formset_request
-from hello.view_helpers.tags import handle_tags_request
+from hello.view_helpers.tags import handle_tags_request,handle_replace_tag_request
 
 
 def index(request):
@@ -40,3 +40,6 @@ def tags(request):
 
 def formset(request):
     return handle_formset_request(request)
+
+def replace_tag(request):
+    return handle_replace_tag_request(request)
