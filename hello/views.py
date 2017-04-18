@@ -29,8 +29,11 @@ def oauth_callback(request):
                                            "grant_type": "authorization_code"})
 
     request.session['token'] = token
-    return tags(request)
+    return menu(request)
 
+def menu(request):
+    return render(request, 'menu.html',
+                  context={'nation_slug': request.session['nation_slug']})
 
 def tags(request):
     return handle_tags_request(request)
