@@ -16,5 +16,6 @@ urlpatterns = [
     url(r'^nation_login$', hello.views.nation_login, name='nation_login'),
     url(r'^oauth_callback$', hello.views.oauth_callback, name='oauth_callback'),
     url(r'^tags$', hello.views.tags, name='tags'),
+    url(r'^replace_tag$', hello.views.replace_tag, name='replace_tag'),
     url(r'^formset$', hello.views.formset, name='formset')
 ]
