@@ -2,6 +2,12 @@
 <h1>Replace Tag</h1>
 <form method="POST" action="replace_tag">
     {% csrf_token %}
+    {% if success %}
+    <div>
+        Successfully replaced tag '<code>{{ old_tag }}</code>' with '<code>{{ new_tag }}</code>' for {{ people_updated_count }} people.
+    </div>
+    <hr/>
+    {% endif %}
     <div>
         Find people with this tag:
         <select name="old_tag">
@@ -18,12 +24,21 @@
             {% endfor %}
         </select>
     </div>
-    <input type="submit" value="Find People" />
+    <input type="submit" name="_find" value="Find People" />
+    {% if people %}
     <table>
         <tr><th>Name</th></tr>
         {% for person in people %}
             <tr><td>{{ person.first_name }} {{ person.last_name }}</td></tr>
         {% endfor %}
     </table>
+    <hr/>
+    <div>
+        Replace tag '<code>{{ old_tag }}</code>' with '<code>{{ new_tag }}</code>' for all {{ people|length }} people listed above?
+    </div>
+    <div>
+        <input type="submit" name="_replace" value="Replace Tags" />
+    </div>
+    {% endif %}
 </form>
 </html>

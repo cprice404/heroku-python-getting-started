@@ -19,7 +19,12 @@ def handle_tags_request(request):
         selected_tag = request.POST.get('selected_tag')
         edit_person_id = request.POST.get('edit_person_id')
         if edit_person_id:
-            save_person(session, nation_slug, edit_person_id, request.POST)
+            person = {'first_name': request.POST.get('person_first_name'),
+                      'last_name': request.POST.get('person_last_name'),
+                      'email': request.POST.get('person_email'),
+                      'phone': request.POST.get('person_phone')
+                      }
+            save_person(session, nation_slug, edit_person_id, person)
             edit_person_id = None
     elif request.method == 'GET':
         tag_prefix = request.GET.get('tag_prefix')
@@ -40,11 +45,7 @@ def handle_tags_request(request):
     matching_people = []
     selected_tag_map = None
     if selected_tag:
-        url = make_api_url(nation_slug, "/tags/" + selected_tag + "/people?limit=1000")
-        people_response = session.get(url,
-                                      params={'format': 'json'},
-                                      headers={'content-type': 'application/json'})
-        people = people_response.json()['results']
+        people = get_people_for_tag(session, nation_slug, selected_tag)
         for person in people:
             team_tags = filter(lambda t: t.lower().startswith("team"),
                                person['tags'])
@@ -66,32 +67,59 @@ def handle_tags_request(request):
                                                  'edit_person_id': edit_person_id,
                                                  'matching_people': matching_people})
 
+
 def handle_replace_tag_request(request):
     nation_slug = request.session['nation_slug']
     service = get_oauth_service(nation_slug)
     token = request.session['token']
     session = service.get_session(token)
 
-    old_tag = None
-    new_tag = None
-    people = []
+    tags = get_tags(session, nation_slug)
+
     if request.method == 'POST':
         old_tag = request.POST.get('old_tag')
         new_tag = request.POST.get('new_tag')
+        if '_find' in request.POST:
+            return __handle_replace_tags__find(session, nation_slug, request, tags, old_tag, new_tag)
+        elif '_replace' in request.POST:
+            return __handle_replace_tags__replace(session, nation_slug, request, tags, old_tag, new_tag)
 
-        url = make_api_url(nation_slug, "/tags/" + old_tag + "/people?limit=1000")
-        people_response = session.get(url,
-                                      params={'format': 'json'},
-                                      headers={'content-type': 'application/json'})
-        people = people_response.json()['results']
+    return render(request, 'replace_tag.html',
+                  context={
+                      'tags': tags,
+                      'old_tag': None,
+                      'new_tag': None,
+                      'people': [],
+                  })
 
-    tags = get_tags(session, nation_slug)
+
+def __handle_replace_tags__find(session, nation_slug, request, tags, old_tag, new_tag):
+    people = get_people_for_tag(session, nation_slug, old_tag)
+
     return render(request, 'replace_tag.html',
                   context={
                       'tags': tags,
                       'old_tag': old_tag,
                       'new_tag': new_tag,
                       'people': people,
+                  })
+
+
+def __handle_replace_tags__replace(session, nation_slug, request, tags, old_tag, new_tag):
+    people = get_people_for_tag(session, nation_slug, old_tag)
+    for person in people:
+        person_id = str(person['id'])
+        remove_tag(session, nation_slug, person_id, old_tag)
+        add_tag(session, nation_slug, person_id, new_tag)
+
+    return render(request, 'replace_tag.html',
+                  context={
+                      'tags': tags,
+                      'old_tag': old_tag,
+                      'new_tag': new_tag,
+                      'people': [],
+                      'success': True,
+                      'people_updated_count': len(people)
                   })
 
 
@@ -102,18 +130,44 @@ def get_tags(session, nation_slug):
     return map(lambda x: x['name'], response.json()['results'])
 
 
-def save_person(session, nation_slug, person_id, request):
-    url = make_api_url(nation_slug, "/people/" + person_id)
+def get_people_for_tag(session, nation_slug, tag):
+    url = make_api_url(nation_slug, "/tags/" + tag + "/people?limit=1000")
+    people_response = session.get(url,
+                                  params={'format': 'json'},
+                                  headers={'content-type': 'application/json'})
+    return people_response.json()['results']
 
-    person = {'first_name': request.get('person_first_name'),
-              'last_name': request.get('person_last_name'),
-              'email': request.get('person_email'),
-              'phone': request.get('person_phone')
-              }
+
+def save_person(session, nation_slug, person_id, person):
+    url = make_api_url(nation_slug, "/people/" + person_id)
     save_response = session.put(url,
                                 headers={'content-type': 'application/json'},
                                 data=json.dumps({'person': person})
                                 )
+    if save_response.status_code != 200:
+        save_response.raise_for_status()
+    return
+
+
+def remove_tag(session, nation_slug, person_id, old_tag):
+    url = make_api_url(nation_slug, "/people/" + person_id +
+                       "/taggings/" + urllib.quote(old_tag))
+    remove_response = session.delete(
+            url,
+            headers={'content-type': 'application/json'})
+    if remove_response.status_code != 200:
+        remove_response.raise_for_status()
+    return
+
+
+def add_tag(session, nation_slug, person_id, new_tag):
+    url = make_api_url(nation_slug, "/people/" + person_id + "/taggings")
+    save_response = session.put(url,
+                                headers={'content-type': 'application/json'},
+                                data=json.dumps(
+                                        {"tagging":
+                                         {"tag": new_tag}
+                                        }))
     if save_response.status_code != 200:
         save_response.raise_for_status()
     return
